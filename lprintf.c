@@ -43,7 +43,7 @@ int lprintf(const char *fmt, ...)
             switch (fmt[i]) {
                 // %
                 case '%':
-                    written_size += write(STDOUT, "%", sizeof(char));
+                    written_size += lputc('%');
                     break;
                 // Signed integer
                 case 'd':
@@ -105,7 +105,7 @@ int lprintf(const char *fmt, ...)
                     break;
             }
         } else {
-            written_size += write(STDOUT, &fmt[i], sizeof(char));
+            written_size += lputc(fmt[i]);
         }
     }
 
