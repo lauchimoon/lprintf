@@ -1,0 +1,117 @@
+// Copyright (c) 2024 Laurentino Luna <laurentino.luna06@gmail.com>
+
+// MIT License
+// 
+// Copyright (c) 2024 Laurentino Luna
+// 
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to deal
+// in the Software without restriction, including without limitation the rights
+// to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+// copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+// 
+// The above copyright notice and this permission notice shall be included in all
+// copies or substantial portions of the Software.
+// 
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+// OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+// SOFTWARE.
+
+#include <stdarg.h>
+#include <unistd.h>
+#include <string.h>
+
+ssize_t lputc(char c);
+
+int lprintf(const char *fmt, ...)
+{
+#define STDOUT 1
+    size_t fmt_size = strlen(fmt);
+    ssize_t written_size = 0;
+
+    va_list ap;
+    va_start(ap, fmt);
+
+    for (int i = 0; i < fmt_size; i++) {
+        if (fmt[i] == '%') {
+            i++;
+            switch (fmt[i]) {
+                // %
+                case '%':
+                    written_size += write(STDOUT, "%", sizeof(char));
+                    break;
+                // Signed integer
+                case 'd':
+                case 'i':
+#define NUM_BUFFER 256
+                    // Using Apple's method to print integers.
+                    // lauchimoon: It's a bit modified; a bit more understandable for my peanut brain...
+                    // https://opensource.apple.com/source/xnu/xnu-201/osfmk/kern/printf.c.auto.html
+                    int n = va_arg(ap, int);
+                    char buffer[NUM_BUFFER] = { 0 };
+
+                    int i = NUM_BUFFER - 1;
+
+                    do {
+                        buffer[i] = n%10 + '0';
+                        i--;
+                        n /= 10;
+                    } while (n != 0);
+
+                    for (int j = i; j < NUM_BUFFER; j++)
+                        written_size += lputc(buffer[j]);
+
+                    break;
+                // Unsigned integer
+                case 'u':
+                    unsigned int u = va_arg(ap, unsigned int);
+                    break;
+                // Signed double
+                case 'f':
+                case 'g':
+                    double f = va_arg(ap, double);
+                    break;
+                // Character
+                case 'c':
+                    char c = (char)va_arg(ap, int);
+                    written_size += write(STDOUT, &c, sizeof(char));
+                    break;
+                // String
+                case 's':
+                    char *s = va_arg(ap, char *);
+                    written_size += write(STDOUT, s, strlen(s));
+                    break;
+                // Octal representation
+                case 'o':
+                    break;
+                // Hex representation, lowercase
+                case 'x':
+                    break;
+                // Hex representation, uppercase
+                case 'X':
+                    break;
+                // Binary representation
+                case 'b':
+                    break;
+                default:
+                    break;
+            }
+        } else {
+            written_size += write(STDOUT, &fmt[i], sizeof(char));
+        }
+    }
+
+    va_end(ap);
+    return written_size;
+}
+
+ssize_t lputc(char c)
+{
+    return write(STDOUT, &c, 1);
+}
+
