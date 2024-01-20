@@ -79,7 +79,7 @@ int lprintf(const char *fmt, ...)
                 // Character
                 case 'c':
                     char c = (char)va_arg(ap, int);
-                    written_size += write(STDOUT, &c, sizeof(char));
+                    written_size += lputc(c);
                     break;
                 // String
                 case 's':
