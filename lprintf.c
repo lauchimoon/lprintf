@@ -84,7 +84,10 @@ int lprintf(const char *fmt, ...)
                 // String
                 case 's':
                     char *s = va_arg(ap, char *);
-                    written_size += write(STDOUT, s, strlen(s));
+                    size_t slen = strlen(s);
+                    for (int i = 0; i < slen; i++)
+                        written_size += lputc(s[i]);
+
                     break;
                 // Octal representation
                 case 'o':
