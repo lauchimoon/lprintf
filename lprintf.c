@@ -123,7 +123,7 @@ inline ssize_t lputc(char c)
     lprintf_buffer[lprintf_idx] = c;
     lprintf_idx++;
 
-    if (lprintf_idx == MAX_BUF - 1 || c == '\n') {
+    if (lprintf_idx == MAX_BUF) {
         lprintf_idx = 0;
         return write(STDOUT, lprintf_buffer, MAX_BUF);
     }
@@ -136,4 +136,10 @@ ssize_t lputbuf(char *s, size_t n)
     write(STDOUT, lprintf_buffer, lprintf_idx);
     lprintf_idx = 0;
     return write(STDOUT, s, n);
+}
+
+void lflush(void)
+{
+    write(STDOUT, lprintf_buffer, lprintf_idx);
+    lprintf_idx = 0;
 }

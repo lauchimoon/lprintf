@@ -26,5 +26,6 @@
 #define LPRINTF_H
 
 int lprintf(const char *fmt, ...);
+void lflush(void);
 
 #endif

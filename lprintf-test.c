@@ -26,8 +26,10 @@
 
 int main(int argc, char **argv)
 {
-    for (int i = 0; i < 10000; i++) {
+    for (int i = 0; i < 500000; i++) {
         lprintf("Hello world %d!\n", i);
     }
+    lflush();
+
     return 0;
 }
