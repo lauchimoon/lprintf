@@ -26,7 +26,13 @@
 #include <unistd.h>
 #include <string.h>
 
+#define MAX_BUF 2048
+
 ssize_t lputc(char c);
+ssize_t lputbuf(char *s, size_t n);
+
+char lprintf_buffer[MAX_BUF] = { 0 };
+int lprintf_idx = 0;
 
 int lprintf(const char *fmt, ...)
 {
@@ -85,8 +91,7 @@ int lprintf(const char *fmt, ...)
                 case 's':
                     char *s = va_arg(ap, char *);
                     size_t slen = strlen(s);
-                    for (int i = 0; i < slen; i++)
-                        written_size += lputc(s[i]);
+                    written_size += lputbuf(s, slen);
 
                     break;
                 // Octal representation
@@ -113,8 +118,22 @@ int lprintf(const char *fmt, ...)
     return written_size;
 }
 
-ssize_t lputc(char c)
+inline ssize_t lputc(char c)
 {
-    return write(STDOUT, &c, 1);
+    lprintf_buffer[lprintf_idx] = c;
+    lprintf_idx++;
+
+    if (lprintf_idx == MAX_BUF - 1 || c == '\n') {
+        lprintf_idx = 0;
+        return write(STDOUT, lprintf_buffer, MAX_BUF);
+    }
+
+    return sizeof(char);
 }
 
+ssize_t lputbuf(char *s, size_t n)
+{
+    write(STDOUT, lprintf_buffer, lprintf_idx);
+    lprintf_idx = 0;
+    return write(STDOUT, s, n);
+}
