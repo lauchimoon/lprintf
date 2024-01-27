@@ -26,6 +26,8 @@
 
 int main(int argc, char **argv)
 {
-    lprintf("Hello world!\n");
+    for (int i = 0; i < 10000; i++) {
+        lprintf("Hello world %d!\n", i);
+    }
     return 0;
 }

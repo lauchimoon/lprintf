@@ -1,6 +1,6 @@
 #!/usr/bin/sh
 CC=gcc
-SRCS='main.c lprintf.c'
+SRCS='lprintf-test.c lprintf.c'
 OUT=lprintf-test
 
 $CC $SRCS -o $OUT
